@@ -1,0 +1,150 @@
+//
+  *      __            ____
+  *     / /__ _  __   / __/                      __  
+  *    / //_/(_)/ /_ / /  ___   ____ ___  __ __ / /_ 
+  *   / ,<  / // __/_\ \ / _ \ / __// _ \/ // // __/ 
+  *  /_/|_|/_/ \__//___// .__//_/   \___/\_,_/ \__/  
+  *                    /_/   github.com/sevencafelatte   
+  * 
+  * @file    SMR-Arduino-POC
+  * @author  sevencafelatte
+  * @date    07-July-2021
+  * @brief   
+  * 
+  *//
+
+// Declaration of AIO Variables for switch, can use spare DIO for switching instead if Analog pins
+
+int SWITCH1 = A0; // COM+
+int SWITCH2 = A1; // COM-
+int SWITCH3 = A2; //
+int SWITCH4 = A3; //
+
+
+// Declaration of Position Pins on the E-AC side (6-Bit Individual Calling)
+int EAC3 = 2; // IN0 Terminal
+int EAC4 = 3; // IN1 Terminal
+int EAC5 = 4; // IN2 Terminal
+int EAC6 = 5; // IN3 Terminal
+int EAC7 = 6; // IN4 Terminal
+int EAC8 = 7; // IN5 Terminal
+
+// Declaration of Position Pins using array
+
+const byte position[] = {2, 3, 4, 5, 6, 7};
+
+// Var declaration of Terminal functions
+
+int SETUP = 8;
+int DRIVE = 9;
+int SVON = 10;
+int HOLD = 11;
+
+
+
+// the follow variables are longs because the time, measured in miliseconds,
+// will quickly become a bigger number than can be stored in an int.
+long time1 = 0;          // the last time the output pin was toggled
+long time2 = 0;
+long time3 = 0;
+long time4 = 0;
+
+long debounce1 = 200;   // the debounce time, increase if the output flickers
+long debounce2 = 200;
+long debounce3 = 200;
+long debounce4 = 200;
+
+
+void setup()
+{
+  pinMode(SWITCH1, INPUT);
+  pinMode(SWITCH2, INPUT);
+
+  pinMode(EAC3, OUTPUT);
+  pinMode(EAC4, OUTPUT);
+  pinMode(EAC5, OUTPUT);
+  pinMode(EAC6, OUTPUT);
+  pinMode(EAC7, OUTPUT);
+  pinMode(EAC8, OUTPUT);
+  pinMode(SETUP, OUTPUT);
+  pinMode(DRIVE, OUTPUT);
+  pinMode(SVON, OUTPUT);
+  pinMode(HOLD, OUTPUT);
+}
+
+void loop() {
+
+  reading1 = digitalRead(SWITCH1);
+  reading2 = digitalRead(SWITCH2);
+  reading3 = digitalRead(SWITCH3);
+  reading4 = digitalRead(SWITCH4);
+
+
+  // if the input just went from LOW and HIGH and we've waited long enough
+  // to ignore any noise on the circuit, toggle the output pin and remember
+  // the time
+  // Condition SWITCH1
+  if (reading1 == HIGH && previous1 == LOW && millis() - time1 > debounce1) 
+  {
+      digitalWrite(SVON, HIGH); // Sending a HIGH digital pulse to the DI010 pin to turn the servo motor ON
+      digitalWrite(SETUP, HIGH); // Sending a HIGH digital pulse to the DIO8 pin to initialize setup
+      
+      
+    // Position
+      digitalWrite(EAC3, HIGH); // LSB
+      digitalWrite(EAC4, HIGH);
+      digitalWrite(EAC5, HIGH);
+      digitalWrite(EAC6, HIGH);
+      digitalWrite(EAC7, HIGH);
+      digitalWrite(EAC8, HIGH); // MSB
+      digitalWrite(DRIVE, HIGH); // Call DRIVE function
+    
+      digitalWrite(RESET, HIGH);
+  }
+
+  // Condition SWITCH2
+    if (reading2 == HIGH && previous2 == LOW && millis() - time2 > debounce2) {
+    if (state2 == HIGH)
+      state2 = LOW;
+    else
+      state2 = HIGH;
+
+    time2 = millis();   
+  }
+
+  //Condition SWITCH3
+    if (reading3 == HIGH && previous3 == LOW && millis() - time3 > debounce3) {
+    if (state3 == HIGH)
+      state3 = LOW;
+    else
+      state3 = HIGH;
+
+    time3 = millis();   
+  }
+
+  //Condition SWITCH4
+    if (reading4 == HIGH && previous4 == LOW && millis() - time4 > debounce4) {
+    if (state4 == HIGH)
+      state4 = LOW;
+    else
+      state4 = HIGH;
+
+    time4 = millis();   
+  }
+
+
+
+
+  digitalWrite(RELAY1, state1);
+  digitalWrite(RELAY2, state2);
+  digitalWrite(RELAY3, state3);
+  digitalWrite(RELAY4, state4);
+
+
+  previous1 = reading1;
+  previous2 = reading2;
+  previous3 = reading3;
+  previous4 = reading4;
+}
+
+break;
