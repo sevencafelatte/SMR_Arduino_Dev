@@ -1,25 +1,25 @@
 //*
-  *
-  *      __            ____
-  *     / /__ _  __   / __/                      __  
-  *    / //_/(_)/ /_ / /  ___   ____ ___  __ __ / /_ 
-  *   / ,<  / // __/_\ \ / _ \ / __// _ \/ // // __/ 
-  *  /_/|_|/_/ \__//___// .__//_/   \___/\_,_/ \__/  
-  *                    /_/   github.com/sevencafelatte   
-  * 
-  * @file    SMR-Arduino-POC
-  * @author  sevencafelatte
-  * @date    07-July-2021
-  * @brief   
-  * 
-  *//
+*
+*      __            ____
+*     / / __ _  __   / __ /                      __
+*    / //_/(_)/ /_ / /  ___   ____ ___  __ __ / /_
+*   /, <  / // __/_\ \ / _ \ / __// _ \/ // // __/
+*  / _ / | _ | / _ / \__ //___// .__//_/   \___/\_,_/ \__/
+*                    / _ /   github.com / sevencafelatte
+*
+* @file    SMR - Arduino - POC
+* @author  sevencafelatte/gitcarl
+* @date    07 - July - 2021
+* @brief
+*
+*//
 
 // Declaration of AIO Variables for switch, can use spare DIO for switching instead if Analog pins
 
-int SWITCH1 = A0; // COM+
-int SWITCH2 = A1; // COM-
-int SWITCH3 = A2; //
-int SWITCH4 = A3; //
+int sensorPin1 = A0; // COM+ or Digital Switch
+int sensorPin2 = A1; // COM- or Digital Switch
+int SWITCH3 = 12; // Model Selector Switch
+int SWITCH4 = 13; // Model Selector Switch
 
 
 // Declaration of Position Pins on the E-AC side (6-Bit Individual Calling)
@@ -29,10 +29,11 @@ int EAC5 = 4; // IN2 Terminal
 int EAC6 = 5; // IN3 Terminal
 int EAC7 = 6; // IN4 Terminal
 int EAC8 = 7; // IN5 Terminal
+int previous1 = 8;
 
 // Declaration of Position Pins using array
 
-const byte position[] = {2, 3, 4, 5, 6, 7};
+const byte position[6] = {2, 3, 4, 5, 6, 7};
 
 // Var declaration of Terminal functions
 
@@ -58,8 +59,10 @@ long debounce4 = 200;
 
 void setup()
 {
-  pinMode(SWITCH1, INPUT);
-  pinMode(SWITCH2, INPUT);
+  pinMode(sensorPin1, INPUT); // Can be undeclared serves as analog sensor
+  pinMode(sensorPin2, INPUT); // Can be undeclared serves as analog sensor
+  pinMode(SWITCH3, INPUT);
+  pinMode(SWITCH4, INPUT);
 
   pinMode(EAC3, OUTPUT);
   pinMode(EAC4, OUTPUT);
@@ -85,52 +88,52 @@ void loop() {
   // to ignore any noise on the circuit, toggle the output pin and remember
   // the time
   // Condition SWITCH1
-  if (reading1 == HIGH && previous1 == LOW && millis() - time1 > debounce1) 
+  if (reading1 == HIGH && previous1 == LOW && millis() - time1 > debounce1)
   {
-      digitalWrite(SVON, HIGH); // Sending a HIGH digital pulse to the DI010 pin to turn the servo motor ON
-      digitalWrite(SETUP, HIGH); // Sending a HIGH digital pulse to the DIO8 pin to initialize setup
-      
-      
+    digitalWrite(SVON, HIGH); // Sending a HIGH digital pulse to the DI010 pin to turn the servo motor ON
+    digitalWrite(SETUP, HIGH); // Sending a HIGH digital pulse to the DIO8 pin to initialize setup
+
+
     // Position
-      digitalWrite(EAC3, HIGH); // LSB
-      digitalWrite(EAC4, HIGH);
-      digitalWrite(EAC5, HIGH);
-      digitalWrite(EAC6, HIGH);
-      digitalWrite(EAC7, HIGH);
-      digitalWrite(EAC8, HIGH); // MSB
-      digitalWrite(DRIVE, HIGH); // Call DRIVE function
-    
-      digitalWrite(RESET, HIGH);
+    digitalWrite(EAC3, HIGH); // LSB
+    digitalWrite(EAC4, HIGH);
+    digitalWrite(EAC5, HIGH);
+    digitalWrite(EAC6, HIGH);
+    digitalWrite(EAC7, HIGH);
+    digitalWrite(EAC8, HIGH); // MSB
+    digitalWrite(DRIVE, HIGH); // Call DRIVE function
+
+    digitalWrite(RESET, HIGH);
   }
 
   // Condition SWITCH2
-    if (reading2 == HIGH && previous2 == LOW && millis() - time2 > debounce2) {
+  if (reading2 == HIGH && previous2 == LOW && millis() - time2 > debounce2) {
     if (state2 == HIGH)
       state2 = LOW;
     else
       state2 = HIGH;
 
-    time2 = millis();   
+    time2 = millis();
   }
 
   //Condition SWITCH3
-    if (reading3 == HIGH && previous3 == LOW && millis() - time3 > debounce3) {
+  if (reading3 == HIGH && previous3 == LOW && millis() - time3 > debounce3) {
     if (state3 == HIGH)
       state3 = LOW;
     else
       state3 = HIGH;
 
-    time3 = millis();   
+    time3 = millis();
   }
 
   //Condition SWITCH4
-    if (reading4 == HIGH && previous4 == LOW && millis() - time4 > debounce4) {
+  if (reading4 == HIGH && previous4 == LOW && millis() - time4 > debounce4) {
     if (state4 == HIGH)
       state4 = LOW;
     else
       state4 = HIGH;
 
-    time4 = millis();   
+    time4 = millis();
   }
 
 
